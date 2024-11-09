@@ -5,14 +5,6 @@ import subprocess
 import os
 import json
 import ctypes
-
-import tkinter as tk
-from tkinter import filedialog, messagebox
-from tkinter import ttk
-import subprocess
-import os
-import json
-import ctypes
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import threading
@@ -31,7 +23,7 @@ class DirSync:
         root.option_add("*Font", default_font)
         style = ttk.Style()
         style.configure('TButton', font=default_font)
-        
+
         self.root = root
         self.root.title("DirSync")
         if getattr(sys, 'frozen', False):
@@ -40,17 +32,16 @@ class DirSync:
             icon_path = 'DirSync.ico'
 
         root.iconbitmap(icon_path)
-        self.root.geometry("1x1")
-        self.root.minsize(400, 1)
-        self.root.resizable(width=False, height=True)
+        self.root.minsize(1500, 1500)
+        self.root.resizable(width=False, height=False)
 
         # Set up variables for system tray functionality
         self.tray_icon = None
-        
+
         # Create menu bar
         self.menubar = tk.Menu(root)
         self.root.config(menu=self.menubar)
-        
+
         # Create File menu
         self.file_menu = tk.Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="File", menu=self.file_menu)
@@ -58,56 +49,39 @@ class DirSync:
         self.file_menu.add_command(label="Load Configuration", command=self.load_configuration)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.exit_app)
-        
-        # Create main frame with scrollbar
-        self.canvas = tk.Canvas(root)
-        self.scrollbar = ttk.Scrollbar(root, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.canvas)
-        
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.update_canvas_and_window()
-        )
-        
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        
-        # Pack the scrollbar and canvas
-        self.scrollbar.pack(side="right", fill="y")
-        self.canvas.pack(side="left", fill="both", expand=True)
-        
-        # Create main frame
-        self.main_frame = ttk.Frame(self.scrollable_frame, padding="20")
-        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-        
-        # Configure grid
+
+        # Create main frame directly in the root window
+        self.main_frame = ttk.Frame(root, padding="20")
+        self.main_frame.pack(fill="both", expand=True)
+
+        # Configure grid for the main frame
         self.main_frame.columnconfigure(0, weight=1)
         self.main_frame.columnconfigure(1, weight=1)
-        
+
         # Frame for pairs
         self.pairs_frame = ttk.Frame(self.main_frame)
         self.pairs_frame.grid(row=0, column=0, columnspan=2, sticky=tk.EW)
-        
+
         # Configure pairs frame columns
         self.pairs_frame.columnconfigure(0, weight=1)
         self.pairs_frame.columnconfigure(1, weight=1)
-        
+
         # List to store source-destination pairs and their frames
         self.path_pairs = []
         self.pair_frames = []
         self.separators = []
-        
+
         # Add initial source-destination pair
         self.add_source_dest_pair()
-        
+
         # Control frame for buttons and progress
         self.control_frame = ttk.Frame(self.main_frame)
         self.control_frame.grid(row=1, column=0, columnspan=2, sticky=tk.EW, pady=10)
-        
+
         # Button frame for organizing buttons
         self.button_frame = ttk.Frame(self.control_frame)
         self.button_frame.grid(row=0, column=0, columnspan=2, sticky=tk.EW)
-        
+
         # Add button
         self.add_button = ttk.Button(self.button_frame, text="Add Dir Pair", command=self.add_source_dest_pair)
         self.add_button.grid(row=0, column=0, pady=10, padx=5)
@@ -115,49 +89,46 @@ class DirSync:
         # Thread count frame
         thread_frame = ttk.Frame(self.button_frame)
         thread_frame.grid(row=0, column=1, pady=10, padx=5)
-        
+
         ttk.Label(thread_frame, text="Thread Count:").pack(side=tk.LEFT, padx=(0, 5))
         self.thread_count = tk.StringVar(value="8")  # Default to 8 threads
         thread_entry = ttk.Entry(thread_frame, textvariable=self.thread_count, width=5)
         thread_entry.pack(side=tk.LEFT)
-        
+
         # Interval frame for scheduling
         interval_frame = ttk.Frame(self.button_frame)
         interval_frame.grid(row=0, column=2, pady=10, padx=5)
-        
+
         ttk.Label(interval_frame, text="Interval (hours):").pack(side=tk.LEFT, padx=(0, 5))
         self.interval_hours = tk.StringVar(value="1")  # Default to 1 hour
         interval_entry = ttk.Entry(interval_frame, textvariable=self.interval_hours, width=5)
         interval_entry.pack(side=tk.LEFT)
-        
+
         # Progress Bar (initially hidden)
         self.progress = ttk.Progressbar(self.control_frame, mode='indeterminate', length=100)
         self.progress.grid(row=1, column=0, columnspan=2, pady=20, sticky=tk.EW)
         self.progress.grid_remove()
-        
+
         # Status Label
         self.status_var = tk.StringVar(value="")
         self.status_label = ttk.Label(self.control_frame, textvariable=self.status_var)
-        self.status_label.grid(row=2, column=0, columnspan=2, pady=(0,10))
-        
-        self.start_mirroring_button = ttk.Button(self.control_frame, text="Start Sync", 
-                                                command=lambda: self.start_copy())
+        self.status_label.grid(row=2, column=0, columnspan=2, pady=(0, 10))
+
+        self.start_mirroring_button = ttk.Button(self.control_frame, text="Start Sync", command=lambda: self.start_copy())
         self.start_mirroring_button.grid(row=3, column=0, pady=10, sticky=tk.E)
-        
-        self.start_scheduled_mirroring_button = ttk.Button(self.control_frame, text="Start Scheduled Sync", 
-                                                command=lambda: self.start_scheduled_copy())
+
+        self.start_scheduled_mirroring_button = ttk.Button(self.control_frame, text="Start Scheduled Sync", command=lambda: self.start_scheduled_copy())
         self.start_scheduled_mirroring_button.grid(row=3, column=1, pady=10, sticky=tk.W)
-        
+
         # Add keyboard shortcuts
         self.root.bind('<Control-s>', lambda e: self.save_configuration())
         self.root.bind('<Control-o>', lambda e: self.load_configuration())
-        
+
         # Handle close event
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # Initial window size update
         self.root.update_idletasks()
-        self.update_canvas_and_window()
 
     def create_tray_icon(self):
         # Create an icon image for the tray
@@ -218,38 +189,6 @@ class DirSync:
             source_var = tk.StringVar(value=source_path)
             dest_var = tk.StringVar(value=dest_path)
             self.add_source_dest_pair(source_var, dest_var)
-
-        # Update the window size
-        self.update_canvas_and_window()
-        
-    def update_canvas_and_window(self):
-        # Update canvas scrollregion
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        
-        # Get the required dimensions for all content
-        required_height = self.scrollable_frame.winfo_reqheight()
-        required_width = self.scrollable_frame.winfo_reqwidth() + self.scrollbar.winfo_reqwidth() + 40  # Add padding
-        
-        # Get screen dimensions
-        screen_height = self.root.winfo_screenheight()
-        screen_width = self.root.winfo_screenwidth()
-        
-        # Calculate maximum dimensions (80% of screen)
-        max_height = int(screen_height * 0.8)
-        max_width = int(screen_width * 0.8)
-        
-        # Set window dimensions, constrained by max values
-        new_height = min(required_height, max_height)
-        new_width = min(required_width, max_width)
-        
-        # Ensure minimum width of 400
-        new_width = max(new_width, 400)
-        
-        # Update window geometry
-        self.root.geometry(f"{int(new_width)}x{int(new_height)}")
-        
-        # Update canvas dimensions
-        self.canvas.configure(height=new_height, width=new_width)
         
     def clear_all_pairs(self):
         # Remove all existing pair frames and separators
@@ -260,7 +199,6 @@ class DirSync:
         self.path_pairs = []
         self.pair_frames = []
         self.separators = []
-        self.update_canvas_and_window()
         
     def save_configuration(self):
         if not self.path_pairs:
@@ -380,7 +318,6 @@ class DirSync:
 
         # Update window size
         self.root.update_idletasks()
-        self.update_canvas_and_window()
             
     def browse_path(self, path_var, title):
         path = filedialog.askdirectory(title=title)
