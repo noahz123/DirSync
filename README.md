@@ -1,1 +1,1 @@
-# DiskSync
+#DirSync
