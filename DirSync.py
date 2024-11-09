@@ -6,6 +6,17 @@ import os
 import json
 import ctypes
 
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from tkinter import ttk
+import subprocess
+import os
+import json
+import ctypes
+from pystray import Icon, Menu, MenuItem
+from PIL import Image, ImageDraw
+import threading
+
 class DirSync:
     def __init__(self, root):
         # Enable DPI awareness (Windows-specific)
@@ -25,6 +36,9 @@ class DirSync:
         self.root.geometry("1x1")
         self.root.minsize(400, 1)
         self.root.resizable(width=False, height=True)
+
+        # Set up variables for system tray functionality
+        self.tray_icon = None
         
         # Create menu bar
         self.menubar = tk.Menu(root)
@@ -36,7 +50,7 @@ class DirSync:
         self.file_menu.add_command(label="Save Configuration", command=self.save_configuration)
         self.file_menu.add_command(label="Load Configuration", command=self.load_configuration)
         self.file_menu.add_separator()
-        self.file_menu.add_command(label="Exit", command=root.quit)
+        self.file_menu.add_command(label="Exit", command=self.exit_app)
         
         # Create main frame with scrollbar
         self.canvas = tk.Canvas(root)
@@ -131,9 +145,39 @@ class DirSync:
         self.root.bind('<Control-s>', lambda e: self.save_configuration())
         self.root.bind('<Control-o>', lambda e: self.load_configuration())
         
+        # Handle close event
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
         # Initial window size update
         self.root.update_idletasks()
         self.update_canvas_and_window()
+
+    def create_tray_icon(self):
+        # Create an icon image for the tray
+        image = Image.new('RGB', (64, 64), (255, 255, 255))
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((0, 0, 64, 64), fill=(0, 128, 255))
+        draw.text((20, 20), "DS", fill="white")
+
+        menu = Menu(MenuItem('Show', lambda: self.show_window()), MenuItem('Exit', lambda: self.exit_app()))
+        self.tray_icon = Icon("DirSync", image, "DirSync", menu)
+
+    def on_closing(self):
+        # Minimize the app to the tray instead of quitting
+        self.root.withdraw()
+        self.create_tray_icon()
+        threading.Thread(target=self.tray_icon.run, daemon=True).start()
+
+    def show_window(self):
+        # Restore the app window
+        if self.tray_icon:
+            self.tray_icon.stop()
+        self.root.after(0, self.root.deiconify)
+
+    def exit_app(self):
+        if self.tray_icon:
+            self.tray_icon.stop()
+        self.root.destroy()
 
     def remove_pair(self, index):
         # Remove the frame and pair from lists

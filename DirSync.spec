@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['DiskSync.py'],
+    ['DirSync.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='DiskSync',
+    name='DirSync',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
