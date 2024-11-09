@@ -16,6 +16,7 @@ import ctypes
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import threading
+import sys
 
 class DirSync:
     def __init__(self, root):
@@ -33,7 +34,11 @@ class DirSync:
         
         self.root = root
         self.root.title("DirSync")
-        icon_path = os.path.join(os.path.dirname(__file__), "DirSync.ico")
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, 'DirSync.ico')
+        else:
+            icon_path = 'DirSync.ico'
+
         root.iconbitmap(icon_path)
         self.root.geometry("1x1")
         self.root.minsize(400, 1)
