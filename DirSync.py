@@ -33,6 +33,8 @@ class DirSync:
         
         self.root = root
         self.root.title("DirSync")
+        icon_path = os.path.join(os.path.dirname(__file__), "DirSync.ico")
+        root.iconbitmap(icon_path)
         self.root.geometry("1x1")
         self.root.minsize(400, 1)
         self.root.resizable(width=False, height=True)
