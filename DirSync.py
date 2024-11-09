@@ -5,14 +5,6 @@ import subprocess
 import os
 import json
 import ctypes
-
-import tkinter as tk
-from tkinter import filedialog, messagebox
-from tkinter import ttk
-import subprocess
-import os
-import json
-import ctypes
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import threading
