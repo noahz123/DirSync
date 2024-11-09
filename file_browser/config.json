@@ -1,0 +1,10 @@
+[
+    {
+        "source": "M:/",
+        "destination": "N:/"
+    },
+    {
+        "source": "I:/",
+        "destination": "G:/"
+    }
+]
