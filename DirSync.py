@@ -21,7 +21,7 @@ class DirSync:
         style.configure('TButton', font=default_font)
         
         self.root = root
-        self.root.title("Drive Sync")
+        self.root.title("DirSync")
         self.root.geometry("1x1")
         self.root.minsize(400, 1)
         self.root.resizable(width=False, height=True)
@@ -88,7 +88,7 @@ class DirSync:
         self.button_frame.grid(row=0, column=0, columnspan=2, sticky=tk.EW)
         
         # Add button
-        self.add_button = ttk.Button(self.button_frame, text="Add Drive Pair", command=self.add_source_dest_pair)
+        self.add_button = ttk.Button(self.button_frame, text="Add Dir Pair", command=self.add_source_dest_pair)
         self.add_button.grid(row=0, column=0, pady=10, padx=5)
 
         # Thread count frame
@@ -119,11 +119,11 @@ class DirSync:
         self.status_label = ttk.Label(self.control_frame, textvariable=self.status_var)
         self.status_label.grid(row=2, column=0, columnspan=2, pady=(0,10))
         
-        self.start_mirroring_button = ttk.Button(self.control_frame, text="Start Mirroring", 
+        self.start_mirroring_button = ttk.Button(self.control_frame, text="Start Sync", 
                                                 command=lambda: self.start_copy())
         self.start_mirroring_button.grid(row=3, column=0, pady=10, sticky=tk.E)
         
-        self.start_scheduled_mirroring_button = ttk.Button(self.control_frame, text="Start Scheduled Mirroring", 
+        self.start_scheduled_mirroring_button = ttk.Button(self.control_frame, text="Start Scheduled Sync", 
                                                 command=lambda: self.start_scheduled_copy())
         self.start_scheduled_mirroring_button.grid(row=3, column=1, pady=10, sticky=tk.W)
         
@@ -288,28 +288,28 @@ class DirSync:
         source_frame = ttk.Frame(pair_frame)
         source_frame.grid(row=0, column=0, columnspan=2, sticky=tk.EW)
 
-        ttk.Label(source_frame, text=f"Source Drive {pair_index + 1}:").pack(side=tk.LEFT, pady=(0, 5))
+        ttk.Label(source_frame, text=f"Source Dir {pair_index + 1}:").pack(side=tk.LEFT, pady=(0, 5))
 
         source_entry = ttk.Entry(pair_frame, textvariable=source_var, width=40)
         source_entry.grid(row=1, column=0, padx=5, pady=5, sticky=tk.EW)
         source_button = ttk.Button(pair_frame, text="Browse", 
-                                command=lambda: self.browse_path(source_var, "Select Source Drive"))
+                                command=lambda: self.browse_path(source_var, "Select Source Dir"))
         source_button.grid(row=1, column=1, padx=5, pady=5)
 
         # Destination drive section
         dest_frame = ttk.Frame(pair_frame)
         dest_frame.grid(row=2, column=0, columnspan=2, sticky=tk.EW)
 
-        ttk.Label(dest_frame, text=f"Destination Drive {pair_index + 1}:").pack(side=tk.LEFT, pady=(0, 5))
+        ttk.Label(dest_frame, text=f"Destination Dir {pair_index + 1}:").pack(side=tk.LEFT, pady=(0, 5))
 
         dest_entry = ttk.Entry(pair_frame, textvariable=dest_var, width=40)
         dest_entry.grid(row=3, column=0, padx=5, pady=5, sticky=tk.EW)
         dest_button = ttk.Button(pair_frame, text="Browse", 
-                                command=lambda: self.browse_path(dest_var, "Select Destination Drive"))
+                                command=lambda: self.browse_path(dest_var, "Select Destination Dir"))
         dest_button.grid(row=3, column=1, padx=5, pady=5)
 
         # Remove button below the source and destination entries
-        remove_button = ttk.Button(pair_frame, text="Remove Drive Pair", 
+        remove_button = ttk.Button(pair_frame, text="Remove Dir Pair", 
                                 command=lambda idx=pair_index: self.remove_pair(idx))
         # Place the button on the left side
         remove_button.grid(row=4, column=0, pady=(10, 0), sticky="W")
@@ -346,11 +346,11 @@ class DirSync:
                 return False
                 
             if not os.path.exists(source):
-                messagebox.showerror("Error", f"Source drive {i + 1} does not exist")
+                messagebox.showerror("Error", f"Source Dir {i + 1} does not exist")
                 return False
                 
             if not os.path.exists(dest):
-                messagebox.showerror("Error", f"Destination drive {i + 1} does not exist")
+                messagebox.showerror("Error", f"Destination Dir {i + 1} does not exist")
                 return False
                 
         return True
