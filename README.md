@@ -2,10 +2,11 @@
 ![DirSync](DirSync_Small.jpg)  
   
 A super simple directory mirroring tool.  
+Can also be used to mirror entire drives.  
 Written in pure Python.  
 Open-source under MIT License.  
 Free for personal and commercial use.  
-Utilizes Windows robocopy under the hood for maximum efficiency.
+Utilizes Windows robocopy under the hood for maximum efficiency.  
   
 ## How to use DirSync  
 1. Download DirSync.exe from the releases page.  
