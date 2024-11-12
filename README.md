@@ -7,6 +7,7 @@ Written in pure Python.
 Open-source under MIT License.  
 Free for personal and commercial use.  
 Utilizes Windows robocopy under the hood for maximum efficiency.  
+Make and maintain backups easily.
   
 ## How to use DirSync  
 1. Download DirSync.exe from the releases page.  
